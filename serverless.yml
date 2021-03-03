@@ -3,7 +3,22 @@ frameworkVersion: '1'
 
 provider:
   name: aws
+  stage: ${opt:stage, 'dev'}
   runtime: nodejs12.x
+  environment:
+    SQS_HTTP_ARN:
+      Fn::GetAtt
+        - AsyncAPIQueue
+        - Arn
+  iamRoleStatements:
+    - Effect: "Allow"
+      Action:
+        - "sqs:GetQueueUrl"
+        - "sqs:SendMessage"
+      Resource:
+        - Fn::GetAtt
+          - AsyncAPIQueue
+          - Arn
 
 functions:
   hello:
@@ -13,3 +28,7 @@ functions:
       - http:
           path: hello
           method: get
+          cors: true
+
+resources:
+  - ${file(resources/sqs.yml)}

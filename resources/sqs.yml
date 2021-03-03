@@ -1,0 +1,7 @@
+Resources:
+  AsyncAPIQueue:
+    Type: AWS::SQS::Queue
+    Properties:
+      FifoQueue: True
+      MessageRetentionPeriod: 60
+      QueueName: ${self:service}-${self:provider.stage}-http

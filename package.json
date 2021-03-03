@@ -11,7 +11,7 @@
     "jest": "^25.1.0"
   },
   "dependencies": {
-    "aws-sdk": "^2.855.0"
+    "@aws-sdk/client-sqs": "^3.7.0"
   },
   "jest": {
     "verbose": false,
