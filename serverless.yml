@@ -1,4 +1,4 @@
-service: asyncapi
+service: sqsgateway
 frameworkVersion: '1'
 
 provider:
