@@ -1,0 +1,27 @@
+{
+  "name": "AsyncAPI",
+  "version": "0.0.1",
+  "description": "A simple API Gateway that stores inbound API calls for asynchronous remote retrieval",
+  "license": "MPL-2.0",
+  "private": false,
+  "scripts": {
+    "test": "jest"
+  },
+  "devDependencies": {
+    "jest": "^25.1.0"
+  },
+  "dependencies": {
+    "aws-sdk": "^2.855.0"
+  },
+  "jest": {
+    "verbose": false,
+    "collectCoverage": false,
+    "testEnvironment": "node",
+    "reporters": [
+      "default"
+    ],
+    "testPathIgnorePatterns": [
+      "/node_modules/"
+    ]
+  }
+}

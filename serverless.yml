@@ -7,7 +7,7 @@ provider:
 
 functions:
   hello:
-    handler: handler.hello
+    handler: handlers/push.get
     timeout: 30
     events:
       - http:
