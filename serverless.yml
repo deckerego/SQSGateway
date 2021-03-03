@@ -6,8 +6,8 @@ provider:
   stage: ${opt:stage, 'dev'}
   runtime: nodejs12.x
   environment:
-    SQS_HTTP_ARN:
-      'Fn::GetAtt': [AsyncAPIQueue, Arn]
+    SQS_HTTP_URL:
+      Ref: AsyncAPIQueue
   iamRoleStatements:
     - Effect: "Allow"
       Action:

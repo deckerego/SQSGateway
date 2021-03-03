@@ -1,5 +1,12 @@
 const { get } = require("../handlers/push");
+const uuid = require("uuid");
 const { SQSClient, SendMessageCommand } = require("@aws-sdk/client-sqs");
+
+jest.mock("uuid", () => {
+  return {
+    v4: () => "0000-0000-0000-0000"
+  }
+});
 
 jest.mock("@aws-sdk/client-sqs", () => {
   const mockSQSClient = jest.fn().mockImplementation(() => {
@@ -23,8 +30,9 @@ describe("push", () => {
     const response = await get({}, {});
     expect(response.statusCode).toBe(200);
     expect(JSON.parse(response.body)).toEqual({
-      DelaySeconds: 0,
-      MessageAttributes:{}
+      MessageAttributes:{},
+      MessageBody:"{}",
+      MessageDeduplicationId: "0000-0000-0000-0000"
     });
   });
 });
