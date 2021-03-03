@@ -4,4 +4,4 @@ Resources:
     Properties:
       FifoQueue: True
       MessageRetentionPeriod: 60
-      QueueName: ${self:service}-${self:provider.stage}-http
+      QueueName: ${self:service}-${self:provider.stage}.fifo

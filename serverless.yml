@@ -7,21 +7,17 @@ provider:
   runtime: nodejs12.x
   environment:
     SQS_HTTP_ARN:
-      Fn::GetAtt
-        - AsyncAPIQueue
-        - Arn
+      'Fn::GetAtt': [AsyncAPIQueue, Arn]
   iamRoleStatements:
     - Effect: "Allow"
       Action:
         - "sqs:GetQueueUrl"
         - "sqs:SendMessage"
       Resource:
-        - Fn::GetAtt
-          - AsyncAPIQueue
-          - Arn
+        - 'Fn::GetAtt': [AsyncAPIQueue, Arn]
 
 functions:
-  hello:
+  submit:
     handler: handlers/push.get
     timeout: 30
     events:
