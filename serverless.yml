@@ -22,7 +22,7 @@ functions:
     timeout: 30
     events:
       - http:
-          path: hello
+          path: submit
           method: get
           cors: true
 
