@@ -10,7 +10,6 @@ module.exports.get = async event => {
   try {
     const payload = toMessage(event, process.env.SQS_HTTP_URL);
     const messageCommand = new SendMessageCommand(payload);
-    console.log(JSON.stringify(messageCommand, null, 2));
     const acknowledgement = await SQS.send(messageCommand);
     return {
       statusCode: 200,
