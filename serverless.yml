@@ -8,6 +8,8 @@ provider:
   environment:
     SQS_HTTP_URL:
       Ref: AsyncAPIQueue
+    API_KEY_ARN:
+      Ref: APIKeySecret
   iamRoleStatements:
     - Effect: "Allow"
       Action:
@@ -15,16 +17,22 @@ provider:
         - "sqs:SendMessage"
       Resource:
         - 'Fn::GetAtt': [AsyncAPIQueue, Arn]
+    - Effect: "Allow"
+      Action:
+        - "secretsmanager:GetSecretValue"
+      Resource:
+        - Ref: APIKeySecret
 
 functions:
   submit:
-    handler: handlers/push.get
+    handler: handlers/push.post
     timeout: 30
     events:
       - http:
           path: submit
-          method: get
+          method: POST
           cors: true
 
 resources:
   - ${file(resources/sqs.yml)}
+  - ${file(resources/secrets.yml)}

@@ -12,6 +12,7 @@
   },
   "dependencies": {
     "@aws-sdk/client-sqs": "^3.7.0",
+    "@aws-sdk/client-secrets-manager": "^3.7.0",
     "uuid": "^8.3.2"
   },
   "jest": {
