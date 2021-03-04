@@ -53,7 +53,7 @@ describe("submit", () => {
         Resource: { DataType: "String" },
         UserAgent: { DataType: "String" },
       },
-      MessageBody:'{"apikey": "abc123"}',
+      MessageBody:'{}',
       MessageDeduplicationId: "0000-0000-0000-0000"
     });
   });

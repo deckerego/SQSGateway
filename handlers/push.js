@@ -14,21 +14,24 @@ const SecretsManager = new SecretsManagerClient({
 
 module.exports.post = async event => {
   try {
-    const acknowledgement = await sendSQSMessage(event);
     const apiKey = await getApiKey();
     const body = JSON.parse(event.body);
 
-    if(apiKey.SecretString != body.apikey) {
+    if(apiKey.SecretString == body.apikey) {
+      delete body.apikey;
+      const payload = toMessage(body, event, process.env.SQS_HTTP_URL);
+      const acknowledgement = await sendSQSMessage(payload);
+
       return {
-        statusCode: 403,
-        body:  JSON.stringify({})
-      }
+        statusCode: 200,
+        body: JSON.stringify(acknowledgement)
+      };
     }
 
     return {
-      statusCode: 200,
-      body: JSON.stringify(acknowledgement)
-    };
+      statusCode: 403,
+      body:  JSON.stringify({})
+    }
   } catch(exception) {
     console.error(exception);
     return {
@@ -46,13 +49,12 @@ function getApiKey() {
   return SecretsManager.send(getValueCommand);
 }
 
-function sendSQSMessage(event) {
-  const payload = toMessage(event, process.env.SQS_HTTP_URL);
+function sendSQSMessage(payload) {
   const messageCommand = new SendMessageCommand(payload);
   return SQS.send(messageCommand);
 }
 
-function toMessage(httpRequest, queueUrl) {
+function toMessage(body, httpRequest, queueUrl) {
   return {
     MessageAttributes: {
       Resource: {
@@ -86,7 +88,7 @@ function toMessage(httpRequest, queueUrl) {
     },
     MessageDeduplicationId: uuid.v4(),
     MessageGroupId: process.env.AWS_LAMBDA_FUNCTION_NAME,
-    MessageBody: httpRequest.body || "{}",
+    MessageBody: JSON.stringify(body),
     QueueUrl: queueUrl
   };
 }
