@@ -20,11 +20,10 @@ async function fetchMessages(callback) {
 function receiveAll() {
   const receiveCommand = new ReceiveMessageCommand({
     AttributeNames: ["SentTimestamp"],
-    MaxNumberOfMessages: 10,
+    MaxNumberOfMessages: 1,
     MessageAttributeNames: ["All"],
     QueueUrl: SQS_HTTP_URL,
-    VisibilityTimeout: 20,
-    WaitTimeSeconds: 0,
+    WaitTimeSeconds: 20,
   });
   return SQS.send(receiveCommand);
 }
