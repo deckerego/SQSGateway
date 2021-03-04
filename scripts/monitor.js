@@ -9,8 +9,6 @@ async function fetchMessages(callback) {
     if(data.Messages) {
       data.Messages.forEach(callback);
       await deleteAll(data.Messages);
-    } else {
-      console.log("No messages found");
     }
   } catch(exception) {
     console.error(exception);
@@ -49,5 +47,5 @@ function logMessage(message) {
     return null;
   }
 
-  await fetchMessages(logMessage);
+  setInterval(() => fetchMessages(logMessage), 30000);
 })();
