@@ -27,6 +27,9 @@ functions:
   submit:
     handler: handlers/push.post
     timeout: 30
+    response:
+      headers:
+        Content-Type: "'application/json'"
     events:
       - http:
           path: submit
