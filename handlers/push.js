@@ -15,7 +15,7 @@ const SecretsManager = new SecretsManagerClient({
 module.exports.post = async event => {
   try {
     const apiKeySecret = await getApiKey();
-    const apiKeyQueryParam = event.queryStringParameters.apikey;
+    const apiKeyQueryParam = event.queryStringParameters["apikey"];
 
     if(apiKeySecret.SecretString == apiKeyQueryParam) {
       const payload = toMessage(event, process.env.SQS_HTTP_URL);
@@ -23,7 +23,7 @@ module.exports.post = async event => {
 
       return {
         statusCode: 200,
-        body: JSON.stringify(acknowledgement)
+        body: JSON.stringify({ MessageId: acknowledgement.MessageId})
       };
     }
 
@@ -35,7 +35,7 @@ module.exports.post = async event => {
     console.error(exception);
     return {
       statusCode: 500,
-      body: JSON.stringify(exception)
+      body: JSON.stringify({})
     };
   }
 };

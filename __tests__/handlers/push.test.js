@@ -2,6 +2,8 @@ const { post } = require("../../handlers/push");
 const uuid = require("uuid");
 const { SQSClient, SendMessageCommand } = require("@aws-sdk/client-sqs");
 const { SecretsManagerClient, GetSecretValueCommand } = require("@aws-sdk/client-secrets-manager");
+const LambdaEventBuilder = require("../helpers/LambdaEventBuilder");
+const SQSMessageBuilder = require("../helpers/SQSMessageBuilder");
 
 jest.mock("uuid", () => {
   return {
@@ -40,27 +42,34 @@ describe("submit", () => {
     jest.resetAllMocks();
   });
 
-  test("Receive empty HTTP POST", async () => {
-    const response = await post({body: '{"apikey": "abc123"}'}, {});
+  test("Receive authorized HTTP POST", async () => {
+    const sqsMessage = new SQSMessageBuilder().build();
+    const httpMessage = new LambdaEventBuilder()
+      .withBody("")
+      .withQueryStringParameter("apikey", "abc123")
+      .build();
+    const response = await post(httpMessage, {});
+
     expect(response.statusCode).toBe(200);
-    expect(JSON.parse(response.body)).toEqual({
-      MessageAttributes: {
-        AmazonCloudfrontId: { DataType: "String" },
-        AmazonTraceId: { DataType: "String" },
-        Host: { DataType: "String" },
-        Method: { DataType: "String" },
-        Path: { DataType: "String" },
-        Resource: { DataType: "String" },
-        UserAgent: { DataType: "String" },
-      },
-      MessageBody:'{}',
-      MessageDeduplicationId: "0000-0000-0000-0000"
-    });
+    expect(JSON.parse(response.body)).toEqual(sqsMessage);
   });
 
   test("Send the wrong API key", async () => {
-    const response = await post({body: '{"apikey": "shoobeedoowah"}'}, {});
+    const httpMessage = new LambdaEventBuilder()
+      .withBody("")
+      .withQueryStringParameter("apikey", "shoobeedoowah")
+      .build();
+    const response = await post(httpMessage, {});
+
     expect(response.statusCode).toBe(403);
+    expect(JSON.parse(response.body)).toEqual({});
+  });
+
+  test("Send an empty payload", async () => {
+    const httpMessage = new LambdaEventBuilder().build();
+    const response = await post(httpMessage, {});
+
+    expect(response.statusCode).toBe(400);
     expect(JSON.parse(response.body)).toEqual({});
   });
 });
