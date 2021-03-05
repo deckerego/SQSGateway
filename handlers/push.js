@@ -87,7 +87,7 @@ function toMessage(httpRequest, queueUrl) {
     },
     MessageDeduplicationId: uuid.v4(),
     MessageGroupId: process.env.AWS_LAMBDA_FUNCTION_NAME,
-    MessageBody: httpRequest.body,
+    MessageBody: httpRequest.body || "{}",
     QueueUrl: queueUrl
   };
 }
