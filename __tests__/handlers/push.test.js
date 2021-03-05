@@ -3,7 +3,6 @@ const uuid = require("uuid");
 const { SQSClient, SendMessageCommand } = require("@aws-sdk/client-sqs");
 const { SecretsManagerClient, GetSecretValueCommand } = require("@aws-sdk/client-secrets-manager");
 const LambdaEventBuilder = require("../helpers/LambdaEventBuilder");
-const SQSMessageBuilder = require("../helpers/SQSMessageBuilder");
 
 jest.mock("uuid", () => {
   return {
@@ -13,7 +12,7 @@ jest.mock("uuid", () => {
 
 jest.mock("@aws-sdk/client-sqs", () => {
   const mockSQSClient = jest.fn().mockImplementation(() => {
-    return { send: (message) => Promise.resolve(message) };
+    return { send: (message) => Promise.resolve({ MessageId: "feedface123" }) };
   });
   const mockSendMessageCommand = jest.fn().mockImplementation((payload) => {
     return payload;
@@ -43,7 +42,6 @@ describe("submit", () => {
   });
 
   test("Receive authorized HTTP POST", async () => {
-    const sqsMessage = new SQSMessageBuilder().build();
     const httpMessage = new LambdaEventBuilder()
       .withBody("")
       .withQueryStringParameter("apikey", "abc123")
@@ -51,7 +49,7 @@ describe("submit", () => {
     const response = await post(httpMessage, {});
 
     expect(response.statusCode).toBe(200);
-    expect(JSON.parse(response.body)).toEqual(sqsMessage);
+    expect(JSON.parse(response.body)).toEqual({ MessageId: "feedface123" });
   });
 
   test("Send the wrong API key", async () => {
@@ -69,7 +67,7 @@ describe("submit", () => {
     const httpMessage = new LambdaEventBuilder().build();
     const response = await post(httpMessage, {});
 
-    expect(response.statusCode).toBe(400);
+    expect(response.statusCode).toBe(403);
     expect(JSON.parse(response.body)).toEqual({});
   });
 });
