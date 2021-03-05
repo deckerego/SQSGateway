@@ -14,12 +14,11 @@ const SecretsManager = new SecretsManagerClient({
 
 module.exports.post = async event => {
   try {
-    const apiKey = await getApiKey();
-    const body = JSON.parse(event.body);
+    const apiKeySecret = await getApiKey();
+    const apiKeyQueryParam = event.queryStringParameters.apikey;
 
-    if(apiKey.SecretString == body.apikey) {
-      delete body.apikey;
-      const payload = toMessage(body, event, process.env.SQS_HTTP_URL);
+    if(apiKeySecret.SecretString == apiKeyQueryParam) {
+      const payload = toMessage(event, process.env.SQS_HTTP_URL);
       const acknowledgement = await sendSQSMessage(payload);
 
       return {
@@ -54,7 +53,7 @@ function sendSQSMessage(payload) {
   return SQS.send(messageCommand);
 }
 
-function toMessage(body, httpRequest, queueUrl) {
+function toMessage(httpRequest, queueUrl) {
   return {
     MessageAttributes: {
       Resource: {
@@ -88,7 +87,7 @@ function toMessage(body, httpRequest, queueUrl) {
     },
     MessageDeduplicationId: uuid.v4(),
     MessageGroupId: process.env.AWS_LAMBDA_FUNCTION_NAME,
-    MessageBody: JSON.stringify(body),
+    MessageBody: httpRequest.body,
     QueueUrl: queueUrl
   };
 }
