@@ -1,7 +1,14 @@
+'use strict';
+
 const { SQSClient, ReceiveMessageCommand, DeleteMessageCommand } = require("@aws-sdk/client-sqs");
 const AWS_REGION = process.argv[2];
 const SQS_HTTP_URL = process.argv[3];
 const SQS = new SQSClient({ region: AWS_REGION });
+
+async function pollQueue(callback, cooldownMillis) {
+  await fetchMessages(callback);
+  return setTimeout(() => pollQueue(callback, cooldownMillis), cooldownMillis);
+}
 
 async function fetchMessages(callback) {
   try {
@@ -47,5 +54,5 @@ function logMessage(message) {
     return null;
   }
 
-  setInterval(() => fetchMessages(logMessage), 30000);
+  pollQueue(logMessage, 10000);
 })();
