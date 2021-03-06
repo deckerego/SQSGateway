@@ -1,3 +1,7 @@
+plugins:
+  - serverless-api-gateway-throttling
+  - serverless-associate-waf
+
 service: sqsgateway
 frameworkVersion: '1'
 
@@ -23,6 +27,14 @@ provider:
       Resource:
         - Ref: APIKeySecret
 
+custom:
+  apiGatewayThrottling:
+    maxRequestsPerSecond: 1
+    maxConcurrentRequests: 1
+  associateWaf:
+    name: ${self:service}-${self:provider.stage}-WebACL
+    version: V2
+
 functions:
   submit:
     handler: handlers/push.post
@@ -39,3 +51,4 @@ functions:
 resources:
   - ${file(resources/sqs.yml)}
   - ${file(resources/secrets.yml)}
+  - ${file(resources/waf.yml)}
