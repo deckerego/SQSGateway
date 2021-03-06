@@ -8,7 +8,9 @@
     "test": "jest"
   },
   "devDependencies": {
-    "jest": "^25.1.0"
+    "jest": "^25.1.0",
+    "serverless-api-gateway-throttling": "^1.1.0",
+    "serverless-associate-waf": "^1.2.1"
   },
   "dependencies": {
     "@aws-sdk/client-sqs": "^3.7.0",
