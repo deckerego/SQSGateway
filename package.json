@@ -1,6 +1,6 @@
 {
   "name": "SQSGateway",
-  "version": "0.0.1",
+  "version": "1.0.0",
   "description": "A simple API Gateway that stores inbound API calls for asynchronous remote retrieval",
   "license": "MPL-2.0",
   "private": false,
