@@ -24,18 +24,6 @@ Resources:
             SampledRequestsEnabled: false
             CloudWatchMetricsEnabled: true
             MetricName: ${self:service}WafWebACLCommon
-        - Name: AWS-AWSManagedRulesAmazonIpReputationList
-          Priority: 1
-          OverrideAction:
-            None: {}
-          Statement:
-            ManagedRuleGroupStatement:
-              VendorName: AWS
-              Name: AWSManagedRulesAmazonIpReputationList
-          VisibilityConfig:
-            SampledRequestsEnabled: false
-            CloudWatchMetricsEnabled: true
-            MetricName: ${self:service}WafWebACLReputation
         - Name: AWS-AWSManagedRulesKnownBadInputsRuleSet
           Priority: 2
           OverrideAction:
