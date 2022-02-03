@@ -9,12 +9,13 @@
   },
   "devDependencies": {
     "jest": "^25.1.0",
-    "serverless-api-gateway-throttling": "^1.1.0",
+    "serverless-api-gateway-throttling": "^1.2.2",
     "serverless-associate-waf": "^1.2.1"
   },
   "dependencies": {
-    "@aws-sdk/client-sqs": "^3.7.0",
     "@aws-sdk/client-secrets-manager": "^3.7.0",
+    "@aws-sdk/client-sqs": "^3.7.0",
+    "serverless": "^3.1.1",
     "uuid": "^8.3.2"
   },
   "jest": {
