@@ -7,8 +7,8 @@ A simple API Gateway in AWS that stores inbound HTTPS calls as SQS FIFO messages
 
 The gateway exists as a Serverless project with AWS-specific resources. Once you have your API keys for an AWS account, the gateway can be deployed with:
 
-    npm install
-    serverless deploy -v --aws-profile <PROFILE>
+    npm ci
+    serverless deploy --aws-profile <PROFILE>
 
 
 ## Sending HTTP Requests
