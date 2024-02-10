@@ -45,7 +45,7 @@ functions:
       - http:
           path: submit
           method: POST
-          cors: false
+          cors: true
 
 resources:
   - ${file(resources/sqs.yml)}
