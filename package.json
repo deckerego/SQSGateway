@@ -13,9 +13,9 @@
     "serverless-associate-waf": "^1.2.1"
   },
   "dependencies": {
-    "@aws-sdk/client-secrets-manager": "^3.511.0",
-    "@aws-sdk/client-sqs": "^3.511.0",
-    "serverless": "^3.1.1",
+    "@aws-sdk/client-secrets-manager": "^3.616",
+    "@aws-sdk/client-sqs": "^3.616",
+    "serverless": "^3.39",
     "uuid": "^8.3.2"
   },
   "jest": {
