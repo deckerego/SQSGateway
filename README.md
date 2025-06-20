@@ -5,10 +5,11 @@ A simple API Gateway in AWS that stores inbound HTTPS calls as SQS FIFO messages
 
 ## Deploying the Gateway
 
-The gateway exists as a Serverless project with AWS-specific resources. Once you have your API keys for an AWS account, the gateway can be deployed with:
+The gateway exists as a SAM (Serverless Application Model) project with AWS-specific resources. Once you have your API keys for an AWS account, the gateway can be deployed with:
 
     npm ci
-    serverless deploy --aws-profile <PROFILE>
+    sam build
+    sam deploy --guided
 
 
 ## Sending HTTP Requests
@@ -27,4 +28,4 @@ A sample Node.JS script is located in the `/scripts` directory as an example of 
 
 ## API Gateway Stage Settings
 
-The default settings in `serverless.yml` rate limit the API Gateway Stage to 1 request per second, with 1 concurrent request. Some default web application firewall rules are also applied to the gateway. To modify these settings, tweak `serverless.yml` or `resources/waf.yml` as needed.
+The default settings in `template.yaml` rate limit the API Gateway Stage to 1 request per second, with 1 concurrent request. Some default web application firewall rules are also applied to the gateway. To modify these settings, tweak the `ApiGateway` resource in `template.yaml` as needed.

@@ -1,0 +1,137 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: 'SQS HTTP Gateway - A simple API Gateway that stores inbound API calls for asynchronous remote retrieval'
+
+Parameters:
+  Stage:
+    Type: String
+    Default: dev
+    Description: Deployment stage
+
+Globals:
+  Function:
+    Runtime: nodejs18.x
+    Timeout: 30
+    Environment:
+      Variables:
+        SQS_HTTP_URL: !Ref AsyncAPIQueue
+        API_KEY_ARN: !Ref APIKeySecret
+
+Resources:
+  # Lambda Function
+  SubmitFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: .
+      Handler: handlers/push.post
+      Policies:
+        - Statement:
+            - Effect: Allow
+              Action:
+                - sqs:GetQueueUrl
+                - sqs:SendMessage
+              Resource: !GetAtt AsyncAPIQueue.Arn
+            - Effect: Allow
+              Action:
+                - secretsmanager:GetSecretValue
+              Resource: !Ref APIKeySecret
+      Events:
+        SubmitAPI:
+          Type: Api
+          Properties:
+            Path: /submit
+            Method: POST
+            RestApiId: !Ref ApiGateway
+
+  # API Gateway
+  ApiGateway:
+    Type: AWS::Serverless::Api
+    Properties:
+      StageName: !Ref Stage
+      Cors:
+        AllowOrigin: "'*'"
+        AllowHeaders: "'*'"
+        AllowMethods: "'POST,OPTIONS'"
+      MethodSettings:
+        - ResourcePath: "/*"
+          HttpMethod: "*"
+          ThrottlingRateLimit: 1
+          ThrottlingBurstLimit: 1
+      Auth:
+        ApiKeyRequired: false
+
+  # SQS FIFO Queue
+  AsyncAPIQueue:
+    Type: AWS::SQS::Queue
+    Properties:
+      FifoQueue: true
+      MessageRetentionPeriod: 60
+      ReceiveMessageWaitTimeSeconds: 20
+      QueueName: !Sub "${AWS::StackName}-${Stage}.fifo"
+
+  # Secrets Manager Secret for API Key
+  APIKeySecret:
+    Type: AWS::SecretsManager::Secret
+    Properties:
+      Description: API key used to validate requests
+      GenerateSecretString:
+        PasswordLength: 64
+        ExcludePunctuation: true
+      Name: !Sub "${AWS::StackName}-${Stage}-APIKey"
+
+  # WAF WebACL
+  WafWebACL:
+    Type: AWS::WAFv2::WebACL
+    Properties:
+      Name: !Sub "${AWS::StackName}-${Stage}-WebACL"
+      Scope: REGIONAL
+      Description: !Sub "Web Application Firewall settings for ${AWS::StackName} ${Stage} API Gateway"
+      DefaultAction:
+        Allow: {}
+      VisibilityConfig:
+        SampledRequestsEnabled: false
+        CloudWatchMetricsEnabled: true
+        MetricName: !Sub "${AWS::StackName}WafWebACL"
+      Rules:
+        - Name: AWS-AWSManagedRulesCommonRuleSet
+          Priority: 0
+          OverrideAction:
+            None: {}
+          Statement:
+            ManagedRuleGroupStatement:
+              VendorName: AWS
+              Name: AWSManagedRulesCommonRuleSet
+          VisibilityConfig:
+            SampledRequestsEnabled: false
+            CloudWatchMetricsEnabled: true
+            MetricName: !Sub "${AWS::StackName}WafWebACLCommon"
+        - Name: AWS-AWSManagedRulesKnownBadInputsRuleSet
+          Priority: 2
+          OverrideAction:
+            None: {}
+          Statement:
+            ManagedRuleGroupStatement:
+              VendorName: AWS
+              Name: AWSManagedRulesKnownBadInputsRuleSet
+          VisibilityConfig:
+            SampledRequestsEnabled: false
+            CloudWatchMetricsEnabled: true
+            MetricName: !Sub "${AWS::StackName}WafWebACLBadInputs"
+
+  # Associate WAF with API Gateway
+  WafAssociation:
+    Type: AWS::WAFv2::WebACLAssociation
+    Properties:
+      ResourceArn: !Sub "arn:aws:apigateway:${AWS::Region}::/restapis/${ApiGateway}/stages/${Stage}"
+      WebACLArn: !GetAtt WafWebACL.Arn
+
+Outputs:
+  ApiGatewayEndpoint:
+    Description: "API Gateway endpoint URL"
+    Value: !Sub "https://${ApiGateway}.execute-api.${AWS::Region}.amazonaws.com/${Stage}"
+  SQSQueueUrl:
+    Description: "SQS Queue URL"
+    Value: !Ref AsyncAPIQueue
+  APIKeySecretArn:
+    Description: "ARN of the API Key Secret"
+    Value: !Ref APIKeySecret

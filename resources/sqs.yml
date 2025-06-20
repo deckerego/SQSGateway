@@ -1,8 +1,0 @@
-Resources:
-  AsyncAPIQueue:
-    Type: AWS::SQS::Queue
-    Properties:
-      FifoQueue: True
-      MessageRetentionPeriod: 60
-      ReceiveMessageWaitTimeSeconds: 20
-      QueueName: ${self:service}-${self:provider.stage}.fifo
